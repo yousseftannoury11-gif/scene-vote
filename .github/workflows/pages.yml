@@ -1,0 +1,37 @@
+# GitHub Pages deployment for DrumTune Pro
+# When moving this folder to its own repository, change the upload-pages-artifact path from 'drum-tuner' to '.'
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - claude/drums-tuning-app-oe288f
+
+permissions:
+  pages: write
+  id-token: write
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: drum-tuner
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

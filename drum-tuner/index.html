@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>DrumTune Pro</title>
+<meta name="theme-color" content="#0b0d10">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DrumTune">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">DrumTune <span>Pro</span></div>
+  <div class="topbar-right">
+    <div id="level-meter" class="level"><div class="bar"></div></div>
+    <button id="mic-btn" class="mic-btn" aria-pressed="false" type="button">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/>
+        <path fill="currentColor" d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.08A7 7 0 0 0 19 11Z"/>
+      </svg>
+      <span class="label">Start</span>
+    </button>
+  </div>
+</header>
+
+<main id="app">
+
+  <section id="tab-tune" class="tab">
+    <div id="drum-chips" class="chips"></div>
+
+    <div class="controls-row">
+      <div id="head-toggle" class="seg">
+        <button type="button" data-head="batter" class="active">Batter</button>
+        <button type="button" data-head="reso">Reso</button>
+      </div>
+      <div id="mode-toggle" class="seg">
+        <button type="button" data-mode="lug" class="active">Lug</button>
+        <button type="button" data-mode="pitch">Pitch</button>
+      </div>
+    </div>
+
+    <div class="readout">
+      <div id="readout-hz" class="hz">— <small>Hz</small></div>
+      <div class="sub">
+        <span id="readout-note" class="note">—</span>
+        <span id="readout-cents" class="cents">—</span>
+      </div>
+    </div>
+    <div id="gauge" class="gauge"></div>
+
+    <div class="target-row">
+      <button id="target-minus" class="round" type="button" aria-label="Decrease target">−</button>
+      <div class="target">
+        <div class="lbl">Target</div>
+        <div id="target-hz" class="val">— Hz</div>
+        <div id="target-note" class="note">—</div>
+      </div>
+      <button id="target-plus" class="round" type="button" aria-label="Increase target">+</button>
+    </div>
+
+    <select id="target-preset" class="select">
+      <option value="">Suggested…</option>
+      <option value="low">Low</option>
+      <option value="mid">Medium</option>
+      <option value="high">High</option>
+    </select>
+
+    <div id="lugmap" class="lugmap"></div>
+
+    <div id="lug-stats" class="stats"></div>
+
+    <div class="row">
+      <button id="clear-readings" class="btn ghost" type="button">Clear</button>
+      <button id="next-lug" class="btn" type="button">Next lug</button>
+    </div>
+
+    <div id="hint" class="hint">Tap Start, then tap the drum head about 1 inch from a lug.</div>
+
+    <canvas id="spectrum" class="spectrum" height="140"></canvas>
+  </section>
+
+  <section id="tab-kit" class="tab" hidden>
+    <div class="section-head">
+      <h2>My Kit</h2>
+      <button id="add-drum" class="btn" type="button">+ Add drum</button>
+    </div>
+
+    <div id="kit-list" class="kit-list"></div>
+
+    <div class="card">
+      <h3>Tuning presets</h3>
+      <div class="preset-row">
+        <select id="preset-select" class="select"></select>
+        <button id="apply-preset" class="btn" type="button">Apply preset</button>
+      </div>
+      <p id="preset-desc" class="muted"></p>
+    </div>
+
+    <dialog id="drum-dialog" class="dialog">
+      <form id="drum-form" method="dialog">
+        <h3>Drum</h3>
+        <input type="hidden" name="id" id="df-id">
+
+        <label class="field">
+          <span>Name</span>
+          <input name="name" id="df-name" type="text" required>
+        </label>
+
+        <label class="field">
+          <span>Type</span>
+          <select name="type" id="df-type">
+            <option value="kick">Kick</option>
+            <option value="snare">Snare</option>
+            <option value="tom">Tom</option>
+            <option value="floor">Floor tom</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Diameter (in)</span>
+          <input type="number" name="diameter" id="df-diameter" min="6" max="30" step="1" inputmode="decimal">
+        </label>
+
+        <label class="field">
+          <span>Lug count</span>
+          <input type="number" name="lugs" id="df-lugs" min="4" max="16" step="1" inputmode="decimal">
+        </label>
+
+        <div class="dialog-actions">
+          <button value="cancel" class="btn ghost" id="df-cancel" type="button">Cancel</button>
+          <button value="save" class="btn" id="df-save" type="submit">Save</button>
+        </div>
+      </form>
+    </dialog>
+  </section>
+
+  <section id="tab-tools" class="tab" hidden>
+    <div class="card">
+      <h3>Tom intervals</h3>
+      <label class="field">
+        <span>Lowest tom (Hz)</span>
+        <input id="iv-from-hz" type="number" value="185" inputmode="decimal">
+      </label>
+      <label class="field">
+        <span>Interval</span>
+        <select id="iv-semitones">
+          <option value="3">Minor 3rd</option>
+          <option value="4">Major 3rd</option>
+          <option value="5" selected>Perfect 4th</option>
+          <option value="7">Perfect 5th</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Number of toms</span>
+        <input id="iv-count" type="number" value="3" min="2" max="6" inputmode="decimal">
+      </label>
+      <div id="iv-result" class="result"></div>
+    </div>
+
+    <div class="card">
+      <h3>Reso head</h3>
+      <label class="field">
+        <span>Batter (Hz)</span>
+        <input id="ratio-batter" type="number" value="190" inputmode="decimal">
+      </label>
+      <label class="field">
+        <span>Relation</span>
+        <select id="ratio-relation"></select>
+      </label>
+      <div id="ratio-result" class="result"></div>
+    </div>
+
+    <div class="card">
+      <h3>Note ↔ Hz</h3>
+      <label class="field">
+        <span>Frequency (Hz)</span>
+        <input id="cv-hz" type="number" step="0.1" value="196" inputmode="decimal">
+      </label>
+      <div id="cv-out" class="result"></div>
+    </div>
+  </section>
+
+  <section id="tab-settings" class="tab" hidden>
+    <div class="row-setting">
+      <label for="set-a4">A4 reference</label>
+      <input id="set-a4" type="number" value="440" min="415" max="466" inputmode="decimal">
+    </div>
+
+    <div class="row-setting">
+      <label for="set-sensitivity">Sensitivity</label>
+      <input id="set-sensitivity" type="range" min="0" max="1" step="0.05" value="0.5">
+    </div>
+
+    <div class="row-setting">
+      <label for="set-tolerance">In-tune tolerance (Hz)</label>
+      <input id="set-tolerance" type="number" value="3" min="1" max="10" inputmode="decimal">
+    </div>
+
+    <div class="row-setting">
+      <label for="set-autoadvance">Auto-advance to next lug</label>
+      <input id="set-autoadvance" type="checkbox" checked>
+    </div>
+
+    <div class="row-setting">
+      <label for="set-hold">Hold reading (ms)</label>
+      <input id="set-hold" type="number" value="2500" step="500" inputmode="decimal">
+    </div>
+
+    <div class="row-setting">
+      <label for="set-spectrum">Show spectrum</label>
+      <input id="set-spectrum" type="checkbox" checked>
+    </div>
+
+    <button id="reset-all" class="btn danger" type="button">Reset all data</button>
+
+    <div id="install-hint" class="card muted">
+      <p>iPhone: open in Safari, tap Share → Add to Home Screen. Allow microphone when asked. Use in a quiet room; hold the phone 10–20 cm above the head.</p>
+      <p class="version">v1.0</p>
+    </div>
+  </section>
+
+</main>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="tune" type="button">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v5a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5Zm6 10a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.94V22h2v-2.06A8 8 0 0 0 20 12h-2Z"/></svg>
+    <span>Tune</span>
+  </button>
+  <button class="tab-btn" data-tab="kit" type="button">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+    <span>Kit</span>
+  </button>
+  <button class="tab-btn" data-tab="tools" type="button">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M21.7 19.3 16 13.6a5.5 5.5 0 0 0-6.8-7.3L11.9 9l-1.4 1.4-2.7-2.7A5.5 5.5 0 0 0 14.6 15l5.7 5.7Z"/></svg>
+    <span>Tools</span>
+  </button>
+  <button class="tab-btn" data-tab="settings" type="button">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm8-3.5a7.9 7.9 0 0 0-.1-1.3l2-1.6-2-3.4-2.4 1a8 8 0 0 0-2.2-1.3L14.8 3H9.2l-.5 2.4a8 8 0 0 0-2.2 1.3l-2.4-1-2 3.4 2 1.6a8 8 0 0 0 0 2.6l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 2.2 1.3l.5 2.4h5.6l.5-2.4a8 8 0 0 0 2.2-1.3l2.4 1 2-3.4-2-1.6c.07-.43.1-.86.1-1.3Z"/></svg>
+    <span>Settings</span>
+  </button>
+</nav>
+
+<div id="toast" class="toast" hidden></div>
+
+<script type="module" src="js/ui/app.js"></script>
+</body>
+</html>

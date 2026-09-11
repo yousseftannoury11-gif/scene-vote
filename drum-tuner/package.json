@@ -1,0 +1,12 @@
+{
+  "name": "drumtune-pro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Professional drum tuner web app (PWA) for snare, kick and toms.",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node tests/pitch.test.mjs",
+    "icons": "node tools/make-icons.mjs"
+  }
+}

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Dark rounded square background -->
+  <rect width="512" height="512" rx="100" fill="#0b0d10"/>
+
+  <!-- Drum head circle with cyan stroke -->
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#38bdf8" stroke-width="28"/>
+
+  <!-- 8 lug dots around the drum head -->
+  <circle cx="256" cy="110" r="16" fill="#22c55e"/>
+  <circle cx="340" cy="125" r="16" fill="#22c55e"/>
+  <circle cx="390" cy="170" r="16" fill="#22c55e"/>
+  <circle cx="405" cy="256" r="16" fill="#22c55e"/>
+  <circle cx="390" cy="342" r="16" fill="#22c55e"/>
+  <circle cx="340" cy="387" r="16" fill="#22c55e"/>
+  <circle cx="256" cy="402" r="16" fill="#22c55e"/>
+  <circle cx="172" cy="387" r="16" fill="#22c55e"/>
+  <circle cx="122" cy="342" r="16" fill="#22c55e"/>
+  <circle cx="107" cy="256" r="16" fill="#22c55e"/>
+  <circle cx="122" cy="170" r="16" fill="#22c55e"/>
+  <circle cx="172" cy="125" r="16" fill="#22c55e"/>
+
+  <!-- Tuning needle line from center to top-right -->
+  <line x1="256" y1="256" x2="340" y2="172" stroke="#38bdf8" stroke-width="20" stroke-linecap="round"/>
+</svg>
